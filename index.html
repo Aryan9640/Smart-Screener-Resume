@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmzScreener AI | Intelligent Resume Screening</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-card">
+            <div class="auth-brand">
+                <span class="logo-icon">&#128269;</span>
+                <span class="logo-text">AmzScreener AI</span>
+            </div>
+            <p class="auth-tagline">AI-powered resume screening & candidate matching</p>
+
+            <div class="auth-tabs">
+                <button type="button" class="auth-tab active" data-auth="signup">Sign Up</button>
+                <button type="button" class="auth-tab" data-auth="signin">Sign In</button>
+            </div>
+
+            <form class="auth-form active" id="signupForm" autocomplete="off">
+                <div class="form-group">
+                    <label for="regName">Full Name</label>
+                    <input type="text" id="regName" placeholder="e.g. Jane Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" placeholder="you@company.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <input type="password" id="regPassword" placeholder="Min. 6 characters" required>
+                </div>
+                <div class="form-group">
+                    <label for="regConfirm">Confirm Password</label>
+                    <input type="password" id="regConfirm" placeholder="Re-enter password" required>
+                </div>
+                <button type="submit" class="btn-primary">Create Account</button>
+                <p class="auth-switch">Already have an account? <a href="#" data-go="signin">Sign In</a></p>
+                <p class="auth-error" id="signupError"></p>
+            </form>
+
+            <form class="auth-form" id="signinForm" autocomplete="off">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" placeholder="you@company.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Your password" required>
+                </div>
+                <button type="submit" class="btn-primary">Sign In</button>
+                <p class="auth-switch">New here? <a href="#" data-go="signup">Create an account</a></p>
+                <p class="auth-error" id="signinError"></p>
+            </form>
+        </div>
+    </div>
+
+    <div class="app-container" id="appContainer">
+        <nav class="top-nav">
+            <div class="nav-left">
+                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12h18M3 6h18M3 18h18"/>
+                    </svg>
+                </button>
+                <div class="logo">
+                    <span class="logo-icon">&#128269;</span>
+                    <span class="logo-text">AmzScreener AI</span>
+                </div>
+            </div>
+            <div class="nav-center">
+                <div class="search-bar">
+                    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="M21 21l-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" placeholder="Search candidates, jobs, reports..." id="globalSearch">
+                </div>
+            </div>
+            <div class="nav-right">
+                <button class="icon-btn" aria-label="Notifications" id="notificationBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span class="notification-badge" id="notificationBadge">0</span>
+                </button>
+                <div class="user-profile" id="userProfile">
+                    <span class="user-avatar" id="userAvatar">U</span>
+                    <span class="user-name" id="userName">User</span>
+                    <button class="icon-btn" id="logoutBtn" aria-label="Logout" title="Logout">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <aside class="sidebar" id="sidebar">
+            <ul class="nav-menu">
+                <li class="nav-item active" data-view="dashboard">
+                    <a href="#" class="nav-link">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-view="dashboard" data-tab="bulk">
+                    <a href="#" class="nav-link">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        <span>Bulk Screen</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-view="jobs">
+                    <a href="#" class="nav-link">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <span>Job Postings</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-view="talent">
+                    <a href="#" class="nav-link">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <span>Talent Pool</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-view="analytics">
+                    <a href="#" class="nav-link" id="navAnalytics">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-view="settings">
+                    <a href="#" class="nav-link">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div id="dashboard-view" class="view-content active">
+            <div class="page-header">
+                <h1>Dashboard</h1>
+                <p class="page-subtitle">AI-powered resume screening and candidate matching</p>
+            </div>
+
+            <div class="profile-card" id="profileCard">
+                <div class="profile-avatar" id="profileAvatar">U</div>
+                <div class="profile-info">
+                    <span class="profile-name" id="profileName">User</span>
+                    <span class="profile-email" id="profileEmail">user@email.com</span>
+                </div>
+                <span class="profile-role">Recruiter</span>
+            </div>
+
+            <div class="tab-bar">
+                <button class="tab-btn active" data-tab="single">Single Resume</button>
+                <button class="tab-btn" data-tab="bulk">Bulk Upload</button>
+                <button class="tab-btn" data-tab="builder">Resume Builder</button>
+            </div>
+
+            <section id="single-tab" class="tab-content active">
+                <div class="metrics-row">
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                            </svg>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-value" id="totalProcessed">0</span>
+                            <span class="metric-label">Total Resumes Processed</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-value" id="avgScore">0%</span>
+                            <span class="metric-label">Average Match Score</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-value" id="topCandidates">0</span>
+                            <span class="metric-label">Top Candidates Found</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-split">
+                    <div class="panel jd-panel">
+                        <div class="panel-header">
+                            <h2>Job Description</h2>
+                            <span class="panel-badge">Configuration</span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="jobTitle">Role Title</label>
+                                <input type="text" id="jobTitle" placeholder="e.g. Senior Software Engineer" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="jobDescription">Job Description</label>
+                                <textarea id="jobDescription" rows="10" placeholder="Paste the full job description here..."></textarea>
+                            </div>
+                            <div class="upload-section">
+                                <label>Resume Upload</label>
+                                <div class="upload-zone" id="singleUploadZone">
+                                    <div class="upload-content">
+                                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                                        </svg>
+                                        <p class="upload-text">Drag & Drop resume here</p>
+                                        <span class="upload-or">or</span>
+                                        <button class="btn-upload" type="button">Browse Files</button>
+                                        <input type="file" id="singleFileInput" accept=".pdf,.docx,.jpg,.jpeg,.png" hidden>
+                                        <p class="file-name" id="singleFileName"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn-primary" id="singleAnalyzeBtn">Analyze Resume</button>
+                        </div>
+                    </div>
+
+                    <div class="panel results-panel">
+                        <div class="panel-header">
+                            <h2>Screening Results</h2>
+                            <div class="panel-actions">
+                                <button class="btn-secondary" id="singleExportBtn">Download Report</button>
+                                <button class="btn-primary">Schedule Interview</button>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="empty-state" id="emptyState">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#CBD5E0" stroke-width="1.5">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
+                                <p>Upload a resume and click Analyze to see results</p>
+                            </div>
+                            <div class="results-content" id="resultsContent" style="display:none;">
+                                <div class="score-section">
+                                    <div class="circular-chart">
+                                        <svg viewBox="0 0 36 36" class="circular-chart-svg">
+                                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                            <path class="circle" id="scoreCircle" stroke="#2E7D32" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                            <text x="18" y="20.35" class="percentage-text" id="scoreText">0%</text>
+                                        </svg>
+                                    </div>
+                                    <div class="score-details">
+                                        <h3>Skill Match</h3>
+                                        <p class="score-grade" id="scoreGrade">Calculated</p>
+                                        <p class="score-potential" id="scorePotential"></p>
+                                        <p id="llmJustification" style="font-size: 12.5px; color: var(--text-secondary); margin-top: 8px; line-height: 1.5; display: none;"></p>
+                                    </div>
+                                </div>
+
+                                <div class="skills-section">
+                                    <h4>Skill Match Analysis</h4>
+                                    <div class="skills-grid">
+                                        <div class="skill-group">
+                                            <span class="skill-group-label">Matched Skills</span>
+                                            <div class="skill-tags" id="matchedKeywords"></div>
+                                        </div>
+                                        <div class="skill-group">
+                                            <span class="skill-group-label">Missing Skills</span>
+                                            <div class="skill-tags" id="missingKeywords"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="gap-section">
+                                    <h4>Skill Gap Analysis</h4>
+                                    <div class="gap-content" id="gapContent"></div>
+                                </div>
+
+                                <div class="guidance-section">
+                                    <h4>Improvement Guidance</h4>
+                                    <ul class="guidance-list" id="guidanceList"></ul>
+                                </div>
+
+                                <div class="jobs-section">
+                                    <h4>Recommended Job Opportunities</h4>
+                                    <div class="job-cards" id="jobCards"></div>
+                                </div>
+
+                                <div class="mistakes-section">
+                                    <h4>Resume Mistakes Found</h4>
+                                    <ul class="mistakes-list" id="mistakesList"></ul>
+                                </div>
+
+                                <div class="req-section">
+                                    <h4>Requirements for the Best Resume</h4>
+                                    <div class="req-grid">
+                                        <div class="req-col">
+                                            <span class="req-label">You Already Have</span>
+                                            <div class="skill-tags" id="reqHave"></div>
+                                        </div>
+                                        <div class="req-col">
+                                            <span class="req-label req-need">Add to Improve</span>
+                                            <div class="skill-tags" id="reqNeed"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="bulk-tab" class="tab-content">
+                <div class="dashboard-split">
+                    <div class="panel jd-panel">
+                        <div class="panel-header">
+                            <h2>Bulk Screening</h2>
+                            <span class="panel-badge">Batch Mode</span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="bulkJd">Job Description</label>
+                                <textarea id="bulkJd" rows="8" placeholder="Paste job description here..."></textarea>
+                            </div>
+                            <div class="upload-section">
+                                <label>Upload Multiple Resumes (Max 100)</label>
+                                <div class="upload-zone" id="bulkUploadZone">
+                                    <div class="upload-content">
+                                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                                        </svg>
+                                        <p class="upload-text">Drag & Drop multiple resumes</p>
+                                        <span class="upload-or">or</span>
+                                        <button class="btn-upload" type="button">Browse Files</button>
+                                        <input type="file" id="bulkFileInput" accept=".pdf,.docx,.jpg,.jpeg,.png" multiple hidden>
+                                        <p class="file-name" id="bulkFileName"></p>
+                                    </div>
+                                </div>
+                                <p class="file-count" id="fileCount"></p>
+                            </div>
+                            <button class="btn-primary" id="bulkAnalyzeBtn">Analyze & Rank Candidates</button>
+                        </div>
+                    </div>
+                    <div class="panel results-panel">
+                        <div class="panel-header">
+                            <h2>Ranked Candidates</h2>
+                            <span class="result-count" id="bulkResultCount"></span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="empty-state" id="bulkEmptyState">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#CBD5E0" stroke-width="1.5">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                                <p>Upload resumes to see ranked results</p>
+                            </div>
+                            <div class="results-content" id="bulkResultsContent" style="display:none;">
+                                <div class="leaderboard">
+                                    <div class="leaderboard-header">
+                                        <span>Rank</span>
+                                        <span>Candidate</span>
+                                        <span>Match Score</span>
+                                        <span>Matched Skills</span>
+                                        <span>Missing Skills</span>
+                                    </div>
+                                    <div id="leaderboardBody"></div>
+                                </div>
+                                <div id="shortlistSection" style="margin-top: 24px; display: none;">
+                                    <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        Shortlisted Candidates
+                                    </h4>
+                                    <div id="shortlistBody"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="builder-tab" class="tab-content">
+                <div class="dashboard-split builder-split">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>Resume Builder</h2>
+                            <span class="panel-badge">Create</span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="rbName">Full Name</label>
+                                <input type="text" id="rbName" placeholder="e.g. Jane Doe">
+                            </div>
+                            <div class="form-group">
+                                <label for="rbTitle">Professional Title</label>
+                                <input type="text" id="rbTitle" placeholder="e.g. Senior Software Engineer">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="rbEmail">Email</label>
+                                    <input type="text" id="rbEmail" placeholder="jane@email.com">
+                                </div>
+                                <div class="form-group">
+                                    <label for="rbPhone">Phone</label>
+                                    <input type="text" id="rbPhone" placeholder="+91 98765 43210">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="rbLocation">Location</label>
+                                <input type="text" id="rbLocation" placeholder="Mumbai, India">
+                            </div>
+                            <div class="upload-section">
+                                <label>Profile Photo</label>
+                                <div class="upload-zone" id="rbPhotoZone">
+                                    <div class="upload-content">
+                                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                                        </svg>
+                                        <p class="upload-text">Upload photo</p>
+                                        <span class="upload-or">or</span>
+                                        <button class="btn-upload" type="button">Choose</button>
+                                        <input type="file" id="rbPhoto" accept="image/*" hidden>
+                                        <p class="file-name" id="rbPhotoName"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="rbSummary">Professional Summary</label>
+                                <textarea id="rbSummary" rows="3" placeholder="Brief summary highlighting your strengths..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="rbSkills">Skills (comma separated)</label>
+                                <input type="text" id="rbSkills" placeholder="python, sql, django, aws, docker">
+                            </div>
+                            <div class="form-group">
+                                <label for="rbExp">Experience (one bullet per line)</label>
+                                <textarea id="rbExp" rows="5" placeholder="- Built REST APIs using Django and Flask&#10;- Led a team of 4 engineers"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="rbEdu">Education (one per line)</label>
+                                <textarea id="rbEdu" rows="3" placeholder="- B.Tech Computer Science, XYZ University"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>Live Preview</h2>
+                            <div class="panel-actions">
+                                <button class="btn-secondary" id="rbPrintBtn" type="button">Download / Print PDF</button>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="rb-sheet" id="rbSheet">
+                                <div class="rb-header">
+                                    <div class="rb-photo" id="rbPhotoPreview">?</div>
+                                    <div class="rb-headtext">
+                                        <h1 id="rbPrevName">Your Name</h1>
+                                        <p id="rbPrevTitle">Professional Title</p>
+                                        <p class="rb-contact" id="rbPrevContact"></p>
+                                    </div>
+                                </div>
+                                <div class="rb-section">
+                                    <h3>Summary</h3>
+                                    <p id="rbPrevSummary" class="rb-muted">Your professional summary will appear here.</p>
+                                </div>
+                                <div class="rb-section">
+                                    <h3>Skills</h3>
+                                    <div class="rb-skills" id="rbPrevSkills"></div>
+                                </div>
+                                <div class="rb-section">
+                                    <h3>Experience</h3>
+                                    <div class="rb-list" id="rbPrevExp"><p class="rb-muted">Your experience will appear here.</p></div>
+                                </div>
+                                <div class="rb-section">
+                                    <h3>Education</h3>
+                                    <div class="rb-list" id="rbPrevEdu"><p class="rb-muted">Your education will appear here.</p></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            </div>
+
+            <div id="jobs-view" class="view-content">
+                <div class="page-header">
+                    <h1>Job Postings</h1>
+                    <p class="page-subtitle">Save and reuse job descriptions for screening</p>
+                </div>
+                <div class="dashboard-split">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>New Job Posting</h2>
+                            <span class="panel-badge">Create</span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="jpTitle">Role Title</label>
+                                <input type="text" id="jpTitle" placeholder="e.g. Senior Python Developer">
+                            </div>
+                            <div class="form-group">
+                                <label for="jpDesc">Description</label>
+                                <textarea id="jpDesc" rows="8" placeholder="Paste the full job description here..."></textarea>
+                            </div>
+                            <button class="btn-primary" id="jpSave" type="button">Save Job Posting</button>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>Saved Postings</h2>
+                            <span class="panel-badge" id="jpCount"></span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="empty-state" id="jpEmpty">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#CBD5E0" stroke-width="1.5">
+                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                                </svg>
+                                <p>No saved job postings yet.</p>
+                            </div>
+                            <div class="job-list" id="jpList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="talent-view" class="view-content">
+                <div class="page-header">
+                    <h1>Talent Pool</h1>
+                    <p class="page-subtitle">Candidates you have screened</p>
+                </div>
+                <div class="panel">
+                    <div class="panel-body">
+                        <div class="empty-state" id="talentEmpty">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#CBD5E0" stroke-width="1.5">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            <p>Analyze resumes to build your talent pool.</p>
+                        </div>
+                        <div class="talent-list" id="talentList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings-view" class="view-content">
+                <div class="page-header">
+                    <h1>Settings</h1>
+                    <p class="page-subtitle">Account and preferences</p>
+                </div>
+                <div class="dashboard-split">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>Account</h2>
+                            <span class="panel-badge">Profile</span>
+                        </div>
+                        <div class="panel-body">
+                            <div class="profile-card">
+                                <div class="profile-avatar" id="setAvatar">U</div>
+                                <div class="profile-info">
+                                    <span class="profile-name" id="setName">User</span>
+                                    <span class="profile-email" id="setEmail">user@email.com</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Theme</label>
+                                <input type="text" class="form-input" value="Indigo & White" readonly>
+                            </div>
+                            <button class="btn-secondary" id="setLogout" type="button">Logout</button>
+                            <button class="btn-primary" id="setClear" type="button" style="margin-top:12px;">Clear Local Data</button>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>About</h2>
+                        </div>
+                        <div class="panel-body">
+                            <p style="color:var(--text-secondary);line-height:1.8;">Smart Resume Screener helps recruiters match resumes to job descriptions using AI-driven skill analysis, gap detection, and candidate ranking. Build attractive resumes and track screening analytics — all in one place.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="analytics-view" class="view-content">
+                <div class="page-header">
+                    <h1>Analytics</h1>
+                    <p class="page-subtitle">Visual insights from your resume screenings</p>
+                </div>
+
+                <div class="analytics-grid">
+                    <div class="panel chart-panel">
+                        <div class="panel-header">
+                            <h2>Match Score per Resume</h2>
+                            <span class="panel-badge">Trend</span>
+                        </div>
+                        <div class="panel-body">
+                            <canvas id="scoreChart" height="120"></canvas>
+                            <p class="chart-empty" id="scoreChartEmpty">Analyze resumes to see the score trend.</p>
+                        </div>
+                    </div>
+
+                    <div class="panel chart-panel">
+                        <div class="panel-header">
+                            <h2>Skill Match Split</h2>
+                            <span class="panel-badge">Last Analysis</span>
+                        </div>
+                        <div class="panel-body">
+                            <canvas id="skillChart" height="120"></canvas>
+                            <p class="chart-empty" id="skillChartEmpty">Run a single resume analysis to see the split.</p>
+                        </div>
+                    </div>
+
+                    <div class="panel chart-panel">
+                        <div class="panel-header">
+                            <h2>Top Matched Skills</h2>
+                            <span class="panel-badge">Frequency</span>
+                        </div>
+                        <div class="panel-body">
+                            <canvas id="skillsFreqChart" height="120"></canvas>
+                            <p class="chart-empty" id="skillsFreqEmpty">No skill data yet.</p>
+                        </div>
+                    </div>
+
+                    <div class="panel chart-panel">
+                        <div class="panel-header">
+                            <h2>Bulk Ranking</h2>
+                            <span class="panel-badge">Batch</span>
+                        </div>
+                        <div class="panel-body">
+                            <canvas id="bulkChart" height="120"></canvas>
+                            <p class="chart-empty" id="bulkChartEmpty">Run a bulk screening to see rankings.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
